@@ -39,7 +39,6 @@ func main() {
 	assignmentModel := &models.AssignmentModel{DB: db}
 	assignmentGraderModel := &models.AssignmentGraderModel{DB: db}
 	graderController := &controllers.GraderController{GraderModel: graderModel, AssignmentGraderModel: assignmentGraderModel}
-
 	assignmentController := &controllers.AssignmentController{AssignmentModel: assignmentModel, AssignmentGraderModel: assignmentGraderModel}
 
 	// Initialize routes
