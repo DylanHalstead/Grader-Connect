@@ -8,22 +8,6 @@
           <p class="text-xl font-semibold">Grader Connect</p>
         </div>
 
-        <!-- Mobile toggle -->
-        <div class="md:hidden">
-          <button @click="toggleMenu">
-            <svg
-              class="h-8 w-8 fill-current"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M4 6h16M4 12h16M4 18h16"></path>
-            </svg>
-          </button>
-        </div>
-
         <!-- Navbar -->
         <div class="hidden md:block">
           <ul class="flex space-x-8 text-md font-sans">
@@ -49,7 +33,7 @@
               <RouterLink
                 :to="{ name: 'login' }"
                 :active-class="'bg-emerald-500'"
-                class="cta bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded text-white font-semibold transition-all"
+                class="bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded text-white font-semibold transition-all"
               >
                 Login
               </RouterLink>
@@ -57,8 +41,24 @@
           </ul>
         </div>
 
+        <!-- Mobile toggle -->
+        <div class="md:hidden inline-flex">
+          <button @click="isOpen = true">
+            <svg
+              class="h-6 w-6 fill-current"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="2 2 20 20"
+              stroke="currentColor"
+            >
+              <path d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+          </button>
+        </div>
+
         <!-- Dark Background Transition -->
-        <transition
+        <Transition
           enter-class="opacity-0"
           enter-active-class="ease-out transition-medium"
           enter-to-class="opacity-100"
@@ -66,18 +66,14 @@
           leave-active-class="ease-out transition-medium"
           leave-to-class="opacity-0"
         >
-          <div
-            @keydown.esc="isOpen = false"
-            v-show="isOpen"
-            class="z-10 fixed inset-0 transition-opacity"
-          >
+          <div v-show="isOpen" class="z-10 fixed inset-0 transition-opacity">
             <div
               @click="isOpen = false"
               class="absolute inset-0 bg-black opacity-50"
               tabindex="0"
             ></div>
           </div>
-        </transition>
+        </Transition>
 
         <!-- Drawer Menu -->
         <aside
@@ -143,26 +139,7 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref } from 'vue'
 
 const isOpen = ref(false)
-
-function toggleMenu() {
-  isOpen.value = !isOpen.value
-}
-
-watch(
-  isOpen,
-  (isOpen) => {
-    if (isOpen) document.body.style.setProperty('overflow', 'hidden')
-    else document.body.style.removeProperty('overflow')
-  },
-  { immediate: true }
-)
-
-onMounted(() => {
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && isOpen.value) isOpen.value = false
-  })
-})
 </script>
