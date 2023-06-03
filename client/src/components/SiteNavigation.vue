@@ -9,13 +9,30 @@
         </div>
 
         <!-- Navbar -->
-        <div class="hidden md:block">
-          <ul class="flex space-x-8 text-md font-sans">
+        <div
+          class="transform md:block top-0 left-0 max-md:p-5 max-md:w-64 max-md:bg-gray-950 max-md:fixed max-md:h-full max-md:overflow-auto max-md:z-30"
+          :class="
+            (isOpen ? ' translate-x-0 ease-in-out duration-300' : '') +
+            (isScreenSmall ? ' -translate-x-full' : '') +
+            (shouldApplyTransition ? ' transition-transform' : ' transition-none')
+          "
+        >
+          <ul
+            :class="{
+              'flex space-x-8 text-md font-sans': !isScreenSmall,
+              'divide-y': isScreenSmall
+            }"
+          >
             <li>
               <RouterLink
                 :to="{ name: 'home' }"
-                :active-class="'border-emerald-600'"
-                class="border-b-2 border-transparent pb-1 hover:lg:border-emerald-600 transition-all"
+                :active-class="!isScreenSmall ? 'border-b-emerald-600' : 'text-emerald-400'"
+                :class="{
+                  'border-y-2 border-y-transparent pb-1 hover:border-b-emerald-600 hover:transition-colors':
+                    !isScreenSmall,
+                  'my-4 inline-block hover:text-emerald-400 transition-colors': isScreenSmall
+                }"
+                @click="isOpen = false"
               >
                 Home
               </RouterLink>
@@ -23,8 +40,13 @@
             <li>
               <RouterLink
                 :to="{ name: 'assignments' }"
-                :active-class="'border-emerald-600'"
-                class="border-b-2 border-transparent pb-1 hover:lg:border-emerald-600 transition-all"
+                :active-class="!isScreenSmall ? 'border-b-emerald-600' : 'text-emerald-400'"
+                :class="{
+                  'border-y-2 border-y-transparent pb-1 hover:border-b-emerald-600 hover:transition-colors':
+                    !isScreenSmall,
+                  'my-4 inline-block hover:text-emerald-400 transition': isScreenSmall
+                }"
+                @click="isOpen = false"
               >
                 Assignments
               </RouterLink>
@@ -33,7 +55,13 @@
               <RouterLink
                 :to="{ name: 'login' }"
                 :active-class="'bg-emerald-500'"
-                class="bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded text-white font-semibold transition-all"
+                @click="isOpen = false"
+                :class="{
+                  'bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded text-white font-semibold transition-colors':
+                    !isScreenSmall,
+                  'my-4 w-full text-center font-semibold cta inline-block bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded text-white transition-colors':
+                    isScreenSmall
+                }"
               >
                 Login
               </RouterLink>
@@ -66,7 +94,7 @@
           leave-active-class="ease-out transition-medium"
           leave-to-class="opacity-0"
         >
-          <div v-show="isOpen" class="z-10 fixed inset-0 transition-opacity">
+          <div v-show="isOpen && isScreenSmall" class="z-10 fixed inset-0 transition-opacity">
             <div
               @click="isOpen = false"
               class="absolute inset-0 bg-black opacity-50"
@@ -74,72 +102,35 @@
             ></div>
           </div>
         </Transition>
-
-        <!-- Drawer Menu -->
-        <aside
-          class="p-5 transform top-0 left-0 w-64 bg-gray-950 fixed h-full overflow-auto ease-in-out transition-all duration-300 z-30"
-          :class="{ 'translate-x-0': isOpen, '-translate-x-full': !isOpen }"
-        >
-          <div class="close">
-            <button class="absolute top-0 right-0 mt-4 mr-4" @click="isOpen = false">
-              <svg
-                class="w-6 h-6"
-                fill="none"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path d="M6 18L18 6M6 6l12 12"></path>
-              </svg>
-            </button>
-          </div>
-
-          <span @click="isOpen = false" class="flex w-full items-center py-4 border-b">
-            <p class="text-xl font-semibold">Grader Connect</p>
-          </span>
-
-          <ul class="divide-y font-sans">
-            <li>
-              <RouterLink
-                :to="{ name: 'home' }"
-                :active-class="'text-emerald-400'"
-                @click="isOpen = false"
-                class="my-4 inline-block hover:text-emerald-400 transition-all"
-              >
-                Home
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink
-                :to="{ name: 'assignments' }"
-                :active-class="'text-emerald-400'"
-                @click="isOpen = false"
-                class="my-4 inline-block hover:text-emerald-400 transition-all"
-              >
-                Assignments
-              </RouterLink>
-            </li>
-            <li>
-              <RouterLink
-                :to="{ name: 'login' }"
-                :active-class="'bg-emerald-500'"
-                @click="isOpen = false"
-                class="my-4 w-full text-center font-semibold cta inline-block bg-emerald-600 hover:bg-emerald-500 px-3 py-2 rounded text-white transition-all"
-              >
-                Login
-              </RouterLink>
-            </li>
-          </ul>
-        </aside>
       </div>
     </nav>
   </header>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 
 const isOpen = ref(false)
+const isScreenSmall = ref(window.innerWidth <= 768)
+const shouldApplyTransition = ref(true)
+const resizeTimeout = ref(null)
+
+const handleResize = () => {
+  isScreenSmall.value = window.innerWidth <= 768
+  if (!isScreenSmall.value) isOpen.value = false
+  // Prevent slider on resize
+  shouldApplyTransition.value = false
+  clearTimeout(resizeTimeout)
+  resizeTimeout.value = setTimeout(() => {
+    shouldApplyTransition.value = true
+  }, 300)
+}
+
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
+})
 </script>
