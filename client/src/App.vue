@@ -1,7 +1,9 @@
 <template>
-  <div class="bg-gray-900 min-h-screen">
+  <div class="min-h-screen">
     <SiteNavigation />
-    <RouterView />
+    <div class="md:mx-16 my-10">
+      <RouterView />
+    </div>
   </div>
 </template>
 
